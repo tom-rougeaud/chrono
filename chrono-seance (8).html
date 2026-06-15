@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chrono Séance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+<style>
+@property --ph{syntax:'<number>';initial-value:142;inherits:false}
+@property --ps{syntax:'<number>';initial-value:35;inherits:false}
+@property --pl1{syntax:'<number>';initial-value:97;inherits:false}
+@property --pl2{syntax:'<number>';initial-value:90;inherits:false}
+:root{--bg:#FFF;--ink:#16181D;--mut:#777E8C;--line:#E6E8EC;--soft:#F5F6F8;--red:#D6453A;--green:#1F9D55;--r:12px;--sc:1}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+/* ─── ÉDITEUR ─── */
+#builder{max-width:820px;margin:0 auto;padding:36px 22px 140px}
+.head{display:flex;align-items:baseline;gap:10px;margin-bottom:26px}
+.head h1{font-family:'Space Grotesk',system-ui,sans-serif;font-weight:700;font-size:1.35rem;letter-spacing:-.01em}
+.head small{color:var(--mut);font-size:.8rem}
+.lab{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:30px 0 10px}
+.meta{display:flex;gap:10px;flex-wrap:wrap}
+.meta input{border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;background:#fff;font-size:.95rem}
+#sName{flex:1;min-width:200px;font-weight:600}
+#sDate{font-variant-numeric:tabular-nums}
+.items{display:flex;flex-wrap:wrap;gap:8px}
+.it{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:.87rem;font-weight:500;background:#fff;transition:border-color .12s}
+.it:hover{border-color:var(--ink)}
+.it .dot{width:10px;height:10px;border-radius:50%;flex:none}
+#list{display:flex;flex-direction:column;gap:6px}
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:24px;text-align:center;color:var(--mut);font-size:.88rem}
+.ph{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:#fff;transition:border-color .2s}
+.ph.miss-ph{border-color:var(--red)!important;animation:shake .32s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ph .ord{display:flex;flex-direction:column}
+.ph .ord button{width:22px;height:18px;font-size:.62rem;color:var(--mut);border-radius:5px;line-height:1}
+.ph .ord button:hover{background:var(--soft);color:var(--ink)}
+.ph .nm{flex:1;min-width:0;border:none;background:transparent;font-weight:600;font-size:.95rem;border-bottom:1px solid transparent;padding:2px 0}
+.ph .nm:focus{outline:none;border-bottom-color:var(--ink)}
+.ph .mn{width:70px;border:1px solid var(--line);border-radius:9px;padding:8px 9px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.ph .mn.miss{border-color:var(--red);background:#FDF1F0}
+.ph .un{font-size:.78rem;color:var(--mut)}
+.ph .cd{display:flex;align-items:center;gap:5px;font-size:.74rem;color:var(--mut);cursor:pointer;user-select:none;white-space:nowrap}
+.ph .cd input{accent-color:var(--ink)}
+.ph .tt{font-size:.72rem;color:var(--red);font-weight:600;white-space:nowrap}
+.ph .cl{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff;cursor:pointer;flex:none}
+.ph .rst{width:26px;height:26px;border-radius:7px;color:var(--mut);font-size:.85rem;flex:none}
+.ph .rst:hover{background:var(--soft);color:var(--ink)}
+.ph .del{width:30px;height:30px;border-radius:8px;color:var(--mut);flex:none}
+.ph .del:hover{background:#FDF1F0;color:var(--red)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:8px}
+.opt{border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;background:#fff}
+.opt h4{font-size:.78rem;font-weight:600;margin-bottom:9px}
+.sw{display:flex;align-items:center;gap:7px;font-size:.84rem;cursor:pointer;user-select:none;margin-bottom:6px}
+.sw input{accent-color:var(--ink);width:15px;height:15px}
+.opt select,.opt input[type=text],.opt input[type=number]{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;font-size:.84rem;width:100%}
+.opt textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;font-size:.82rem;width:100%;resize:vertical;min-height:58px;line-height:1.5}
+.opt .row{display:flex;gap:7px;margin-top:8px;align-items:center}
+.opt .row .mini{border:1px solid var(--line);border-radius:9px;padding:8px 13px;font-size:.82rem;font-weight:500;white-space:nowrap;flex:none}
+.opt .row .mini:hover{border-color:var(--ink)}
+.opt .hint{font-size:.72rem;color:var(--mut);line-height:1.5;margin-top:8px}
+.opt .sub{font-size:.74rem;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 6px}
+.clrline{display:flex;align-items:center;gap:9px;font-size:.84rem}
+.clrline input[type=color]{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff;cursor:pointer}
+.vol{display:flex;align-items:center;gap:9px;font-size:.78rem;color:var(--mut);margin-top:8px}
+.vol input[type=range]{flex:1;accent-color:var(--ink)}
+.vol b{color:var(--ink);min-width:34px;text-align:right}
+.cat-toggles{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.cat-sw{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;padding:5px 8px;border-radius:8px}
+.cat-sw:hover{background:var(--soft)}
+.cat-sw .cdot{width:9px;height:9px;border-radius:50%;flex:none}
+.cat-sw input{accent-color:var(--ink)}
+.custom-ph-list{display:flex;flex-direction:column;gap:3px;margin-top:6px;max-height:110px;overflow-y:auto}
+.cph{display:flex;align-items:flex-start;gap:6px;font-size:.8rem;line-height:1.4;padding:3px 6px;border-radius:7px}
+.cph:hover{background:var(--soft)}
+.cph span{flex:1;color:var(--ink)}
+.cph button{width:20px;height:20px;border-radius:5px;color:var(--mut);font-size:.7rem;flex:none}
+.cph button:hover{background:#FDF1F0;color:var(--red)}
+#seances{display:flex;flex-direction:column;gap:6px}
+.se{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;background:#fff;font-size:.88rem}
+.se .d{font-variant-numeric:tabular-nums;color:var(--mut);min-width:86px}
+.se .n{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.se .b{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 9px}
+.se .b.today{background:#E9F7EF;color:var(--green)}
+.se .b.next{background:var(--soft);color:var(--mut)}
+.se .b.past{background:#FDF1F0;color:var(--red)}
+.se .a{color:var(--mut);font-size:.8rem;padding:5px 8px;border-radius:7px}
+.se .a:hover{background:var(--soft);color:var(--ink)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:1px solid var(--line);border-radius:10px;padding:10px 15px;font-size:.85rem;font-weight:500;background:#fff}
+.btn:hover{border-color:var(--ink)}
+.ytres{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:220px;overflow:auto}
+.ytr{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:6px;background:#fff;text-align:left}
+.ytr:hover{border-color:var(--ink)}
+.ytr img{width:64px;height:48px;border-radius:6px;object-fit:cover;flex:none;background:var(--soft)}
+.ytr .meta2{min-width:0}
+.ytr .t{font-size:.82rem;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ytr .c{font-size:.72rem;color:var(--mut);margin-top:2px}
+#bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;z-index:50}
+.tot{font-family:'Space Grotesk',system-ui,sans-serif;font-weight:700;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.tot span{display:block;font-family:'Inter',system-ui,sans-serif;font-weight:400;font-size:.72rem;color:var(--mut)}
+.cap{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--mut)}
+.cap input{width:70px;border:1px solid var(--line);border-radius:9px;padding:8px 9px;font-variant-numeric:tabular-nums;background:#fff}
+#capWarn{font-size:.8rem;font-weight:600}
+#fitBtn{color:var(--red);border-color:var(--red)}
+#go{margin-left:auto;background:var(--ink);color:#fff;border-radius:11px;padding:13px 28px;font-weight:600;font-size:.95rem}
+#go:disabled{opacity:.3;cursor:not-allowed}
+/* ─── PROJECTION ─── */
+#run{
+  position:fixed;inset:0;display:flex;flex-direction:column;z-index:100;
+  background:linear-gradient(155deg,
+    hsl(var(--ph),calc(var(--ps)*1%),calc(var(--pl1)*1%)) 0%,
+    hsl(var(--ph),calc(var(--ps)*1.5%),calc(var(--pl2)*1%)) 100%);
+  transition:--ph 1.6s ease,--ps 1.6s ease,--pl1 1.6s ease,--pl2 1.6s ease;
+}
+body.idle #run{cursor:none}
+.chrome{transition:opacity .6s}
+body.idle .chrome{opacity:0;pointer-events:none}
+/* r-top : contient les infos ET les boutons mini sur la droite */
+.r-top{display:flex;align-items:center;gap:14px;padding:13px 16px 0;font-size:.85rem;color:rgba(22,24,29,.5);font-variant-numeric:tabular-nums;flex:none}
+.r-top .end{margin-right:auto}
+.r-top .minis{display:flex;gap:5px;margin-left:10px;flex:none}
+.mac{width:33px;height:33px;border-radius:9px;background:rgba(22,24,29,.09);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:600;color:rgba(22,24,29,.55);transition:background .15s,color .15s;border:none;cursor:pointer}
+.mac:hover{background:rgba(22,24,29,.18);color:var(--ink)}
+.mac.on{background:rgba(22,24,29,.78);color:#fff}
+#strip{display:flex;height:6px;flex:none;margin-top:6px}
+#strip .seg{height:100%;opacity:.22;transition:opacity .4s}
+#strip .seg.cur{opacity:1}
+.r-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px;min-height:0}
+#rName{font-size:clamp(1.2rem,calc(3.2vw*var(--sc)),calc(2.2rem*var(--sc)));font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(22,24,29,.52);transition:font-size .3s}
+#rClock{font-family:'Space Grotesk',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(5rem,calc(24vw*var(--sc)),calc(19rem*var(--sc)));
+  line-height:1.04;font-variant-numeric:tabular-nums;letter-spacing:-.04em;transition:color .4s,font-size .3s}
+#rClock.over{color:var(--red)!important;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+#rNext{font-size:clamp(.76rem,calc(1.5vw*var(--sc)),calc(.96rem*var(--sc)));color:rgba(22,24,29,.45);transition:font-size .3s}
+#rNext b{color:rgba(22,24,29,.7);font-weight:600}
+#pausedTag{position:absolute;top:58px;left:50%;transform:translateX(-50%);background:rgba(22,24,29,.82);color:#fff;border-radius:999px;padding:7px 20px;font-weight:600;font-size:.85rem;letter-spacing:.1em;backdrop-filter:blur(4px);z-index:10}
+/* Phrase — au-dessus de la barre, toujours visible */
+#phrase{
+  flex:none;text-align:center;padding:14px 6vw;
+  font-size:clamp(1.45rem,3.2vw,2.4rem);
+  color:rgba(22,24,29,.52);font-style:italic;line-height:1.45;
+  opacity:0;transition:opacity 1.8s ease;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:0;letter-spacing:.01em;
+  font-family:'Space Grotesk',system-ui,sans-serif;
+}
+#phrase.show{opacity:1}
+/* ─── Lecteur compact haut-gauche ─── */
+#playerPanel{
+  position:absolute;top:58px;left:12px;z-index:15;
+  background:rgba(22,24,29,.13);backdrop-filter:blur(12px);
+  border-radius:13px;padding:8px 10px;
+  display:flex;flex-direction:column;gap:6px;width:210px;
+}
+.pl-track{min-width:0}
+.pl-title{font-size:.82rem;font-weight:600;color:rgba(22,24,29,.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-artist{font-size:.68rem;color:rgba(22,24,29,.48);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-row{display:flex;align-items:center;gap:5px}
+.pc{width:30px;height:30px;border-radius:7px;background:rgba(22,24,29,.1);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;cursor:pointer;border:none;color:rgba(22,24,29,.65);transition:background .12s;flex:none}
+.pc:hover{background:rgba(22,24,29,.22)}
+.pc.on{background:rgba(22,24,29,.78);color:#fff}
+#playBtn{width:34px;height:34px;border-radius:50%}
+.pl-vol-row{display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+.pl-vol-row input[type=range]{flex:1;accent-color:rgba(22,24,29,.7);height:4px}
+.pl-vol-row span{font-size:.68rem;color:rgba(22,24,29,.45);min-width:26px;text-align:right}
+/* Liste de pistes — tombe sous le lecteur */
+#trackListPanel{position:absolute;top:calc(100% + 6px);left:0;width:240px;background:rgba(255,255,255,.97);border-radius:12px;box-shadow:0 8px 28px rgba(22,24,29,.22);padding:6px;max-height:200px;overflow-y:auto;z-index:80}
+.tl-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:7px;cursor:pointer;font-size:.82rem;transition:background .1s}
+.tl-item:hover{background:rgba(22,24,29,.07)}
+.tl-item.playing{background:rgba(22,24,29,.1);font-weight:600}
+.tl-num{color:var(--mut);font-size:.72rem;min-width:18px;font-variant-numeric:tabular-nums;flex:none}
+.tl-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-art{color:var(--mut);font-size:.72rem;flex:none;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Barre — toujours visible, sans animation */
+.barArea{padding:0 20px 10px;flex:none}
+.barWrap{height:28px;background:rgba(22,24,29,.1);border-radius:14px;overflow:hidden;position:relative}
+#fill{position:absolute;top:0;bottom:0;left:0;width:0%;border-radius:14px;
+  transition:width .35s linear,background-color 1s}
+/* pas d'animation shimmer */
+.endtimes{display:flex;gap:10px;flex-wrap:wrap;padding:6px 20px 0;font-size:clamp(.62rem,.85vw,.78rem);color:rgba(22,24,29,.4);font-variant-numeric:tabular-nums;line-height:1.3}
+.endtimes .et{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.et .dot2{width:7px;height:7px;border-radius:50%;flex:none;opacity:.65}
+.et.cur-et{color:rgba(22,24,29,.72);font-weight:700}
+/* Contrôles */
+.r-ctrl{display:flex;align-items:center;gap:6px;padding:8px 22px 12px;justify-content:center;flex-wrap:wrap;flex:none}
+.rc{border:1px solid rgba(22,24,29,.15);border-radius:10px;min-width:42px;height:42px;padding:0 12px;font-weight:600;font-size:.88rem;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(4px);cursor:pointer}
+.rc:hover{border-color:rgba(22,24,29,.38);background:rgba(255,255,255,.82)}
+.rc.on{background:rgba(22,24,29,.78);color:#fff;border-color:transparent}
+.rc.warn:hover{border-color:var(--red);color:var(--red)}
+.kbd{width:100%;text-align:center;font-size:.68rem;color:rgba(22,24,29,.32);margin-top:2px}
+.kbd kbd{background:rgba(22,24,29,.07);border:1px solid rgba(22,24,29,.12);border-radius:4px;padding:1px 5px;font-family:'Space Grotesk',sans-serif;font-size:.67rem}
+/* Lien discret */
+#trLink{position:absolute;bottom:14px;right:18px;font-size:.7rem;color:rgba(22,24,29,.45);text-decoration:none;letter-spacing:.08em;font-family:'Space Grotesk',system-ui;opacity:.7;transition:opacity .2s;z-index:5;pointer-events:auto}
+#trLink:hover{opacity:1}
+body.idle #trLink{opacity:.25}
+/* Overlay fin de phase */
+#ov{position:fixed;inset:0;background:rgba(22,24,29,.38);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.ov-c{background:rgba(255,255,255,.95);border-radius:20px;padding:32px 36px;text-align:center;max-width:480px;width:100%}
+.ov-c h2{font-family:'Space Grotesk',system-ui,sans-serif;font-size:1.45rem;margin-bottom:4px}
+.ov-c .ovt{font-family:'Space Grotesk',system-ui,sans-serif;font-weight:700;font-size:2.5rem;color:var(--red);font-variant-numeric:tabular-nums;margin:10px 0 2px}
+.ov-c .ovl{font-size:.78rem;color:var(--mut);margin-bottom:16px}
+.ov-c .nx{color:var(--mut);font-size:.9rem;margin-bottom:20px}
+.ov-a{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.big{background:var(--ink);color:#fff;border-radius:12px;padding:13px 22px;font-weight:600;cursor:pointer}
+/* Bilan */
+#summary{max-width:640px;margin:0 auto;padding:48px 22px}
+#summary h2{font-family:'Space Grotesk',system-ui,sans-serif;font-size:1.8rem;margin-bottom:4px}
+#summary .sub{color:var(--mut);margin-bottom:22px;font-size:.9rem}
+.sumt{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.sumt th{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);text-align:left;padding:10px 15px;background:var(--soft);font-weight:600}
+.sumt td{padding:11px 15px;border-top:1px solid var(--line);font-size:.9rem;font-variant-numeric:tabular-nums}
+.sumt .sr td:first-child{display:flex;align-items:center;gap:8px}
+.sdot{width:11px;height:11px;border-radius:50%;flex:none}
+td.dp{color:var(--red);font-weight:600}td.dm{color:var(--green);font-weight:600}
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:rgba(22,24,29,.88);color:#fff;border-radius:10px;padding:10px 18px;font-size:.85rem;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center;backdrop-filter:blur(4px)}
+#toast.show{opacity:1}
+@media(max-width:560px){.ph{flex-wrap:wrap}#go{width:100%;margin-left:0}.ov-c{padding:24px 18px}}
+</style>
+</head>
+<body>
+<!-- ═══ ÉDITEUR ═══ -->
+<div id="builder">
+  <div class="head"><h1>Chrono Séance</h1><small>minuteur pédagogique · vidéoprojection</small></div>
+  <div class="lab">Séance</div>
+  <div class="meta">
+    <input id="sName" type="text" placeholder="Nom de la séance (ex. 3eB — Trigonométrie)">
+    <input id="sDate" type="date">
+  </div>
+  <div class="lab">Ajouter une phase — la durée se saisit ensuite</div>
+  <div class="items" id="items"></div>
+  <div class="lab">Déroulé</div>
+  <div id="list"></div>
+  <div class="lab">Options</div>
+  <div class="opts">
+    <div class="opt">
+      <h4>Signaux &amp; accessibilité</h4>
+      <label class="sw"><input type="checkbox" id="oTiers" onchange="S.tiers=this.checked;persist();renderList()"> Tiers-temps (× 4/3 sur les comptes à rebours)</label>
+      <label class="sw"><input type="checkbox" id="oSound" checked onchange="persist()"> Signaux sonores (5 min · 1 min · fin)</label>
+      <label class="sw"><input type="checkbox" id="oVoice" onchange="persist()"> Annonces vocales (« Il reste 5 minutes »)</label>
+      <div class="sub">Couleur du chrono</div>
+      <div class="clrline">
+        <input type="color" id="oChronoColor" value="#16181D" onchange="saveSettings()">
+        <span style="color:var(--mut);font-size:.82rem">Indépendant des couleurs de segment</span>
+      </div>
+    </div>
+    <div class="opt">
+      <h4>Musique</h4>
+      <div class="sub">Mode en séance</div>
+      <select id="oMusicMode" onchange="onMusicModeChange()">
+        <option value="none">Aucune musique</option>
+        <option value="mp3">Bibliothèque GitHub / MP3</option>
+      </select>
+      <div class="hint" style="margin-top:8px">Les pistes sont chargées automatiquement depuis votre dépôt GitHub au démarrage. Utilisez ♪ en projection pour activer/couper.</div>
+    </div>
+    <div class="opt" style="grid-column:1/-1">
+      <h4>🎵 Bibliothèque musicale — GitHub</h4>
+      <div id="ghStatus" class="hint" style="margin-top:0;min-height:1.4em">Chargement depuis GitHub…</div>
+      <div id="ghTrackPreview" style="margin-top:6px;font-size:.78rem;color:var(--mut);max-height:100px;overflow-y:auto"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="mini" onclick="fetchGitHubTracks()">⟳ Recharger les pistes</button>
+        <label class="sw" style="margin:0"><input type="checkbox" id="oMp3Shuffle" checked> Aléatoire</label>
+      </div>
+      <div class="sub">Import MP3 local (secours sans connexion)</div>
+      <div class="row">
+        <button class="mini" onclick="$i('mp3Input').click()">📁 Fichiers locaux</button>
+        <input type="file" id="mp3Input" accept="audio/*" multiple class="hidden" onchange="loadLocalMP3(this)">
+        <span id="mp3List" style="font-size:.78rem;color:var(--mut)"></span>
+      </div>
+      <div class="hint" style="margin-top:8px">Pour ajouter des musiques : déposez des MP3 dans les sous-dossiers de <a href="https://github.com/tom-rougeaud/chrono/tree/main/MUSIQUES%20LIBRES" target="_blank" style="color:var(--ink);font-weight:600">votre dépôt GitHub</a>, puis cliquez « Recharger ».</div>
+    </div>
+    <div class="opt" style="grid-column:1/-1">
+      <h4>Phrases inspirantes &amp; conseils</h4>
+      <label class="sw"><input type="checkbox" id="oPhrases" checked onchange="saveSettings()"> Afficher des phrases en bas du chrono (toutes les 60 s)</label>
+      <div class="sub">Catégories actives</div>
+      <div class="cat-toggles" id="catToggles"></div>
+      <div class="sub">Ajouter vos propres phrases</div>
+      <div class="row"><textarea id="newPhraseInput" placeholder="Entrez votre phrase, puis cliquez Ajouter" rows="2"></textarea></div>
+      <div class="row"><button class="mini" onclick="addCustomPhrase()">Ajouter</button></div>
+      <div class="custom-ph-list" id="customPhList"></div>
+    </div>
+  </div>
+  <div class="lab">Séances programmées</div>
+  <div id="seances"></div>
+  <div class="acts">
+    <button class="btn" onclick="saveSeance()">Enregistrer cette séance</button>
+    <button class="btn" onclick="exportJSON()">Exporter JSON</button>
+    <button class="btn" onclick="$i('impFile').click()">Importer JSON</button>
+    <button class="btn" onclick="exportHTML()">Exporter HTML autonome</button>
+    <input type="file" id="impFile" accept=".json,application/json" class="hidden" onchange="importJSON(this)">
+  </div>
+  <div class="hint" style="font-size:.72rem;color:var(--mut);margin-top:10px;line-height:1.5">Séances conservées dans ce navigateur. Le JSON sert de sauvegarde et de transfert. L'HTML autonome est une copie complète avec la séance déjà chargée — musique et voix restent modifiables en cours de projection.</div>
+</div>
+<div id="bar">
+  <div class="tot"><span>Total prévu</span><span id="totLbl">0 min</span></div>
+  <div class="cap">Ne pas dépasser <input type="number" id="oCap" min="1" max="600" placeholder="—" oninput="onCap()"> min</div>
+  <span id="capWarn" class="hidden"></span>
+  <button class="btn hidden" id="fitBtn" onclick="autoFit()">Ajuster auto.</button>
+  <button id="go" onclick="startSession()">Projeter la séance</button>
+</div>
+<!-- ═══ PROJECTION ═══ -->
+<div id="run" class="hidden">
+  <div class="r-top chrome">
+    <span>Phase <b id="rStep">1/1</b></span>
+    <span id="rWall"></span>
+    <span class="end">Fin prévue <b id="rEnd">—</b></span>
+    <div class="minis">
+      <button class="mac" id="mBtn" onclick="toggleMusic()" title="Musique (M)">♪</button>
+      <button class="mac" id="vBtn" onclick="toggleVoice()" title="Voix (V)">🗣</button>
+      <button class="mac" onclick="scaleDown()" title="Réduire (−)">−</button>
+      <button class="mac" onclick="scaleUp()" title="Agrandir (+)">+</button>
+    </div>
+  </div>
+  <div id="strip"></div>
+  <div class="r-mid">
+    <div id="pausedTag" class="hidden chrome">EN PAUSE</div>
+    <div id="rName"></div>
+    <div id="rClock">00:00</div>
+    <div id="rNext" class="chrome"></div>
+  </div>
+  <div id="phrase"></div>
+  <div class="barArea">
+    <div class="barWrap"><div id="fill"></div></div>
+  </div>
+  <div class="endtimes" id="endtimes"></div>
+  <!-- Lecteur compact haut-gauche -->
+  <div id="playerPanel" class="hidden chrome">
+    <div id="trackListPanel" class="hidden"></div>
+    <div class="pl-track">
+      <div class="pl-title" id="plTitle">Chargement…</div>
+      <div class="pl-artist" id="plArtist"></div>
+    </div>
+    <div class="pl-row">
+      <button class="pc" onclick="Player.prev()" title="Précédente">⏮</button>
+      <button class="pc" id="playBtn" onclick="Player.togglePlay()">▶</button>
+      <button class="pc" onclick="Player.next()" title="Suivante">⏭</button>
+      <div class="pl-vol-row">
+        <input type="range" id="playerVol" min="0" max="1" step=".01" value=".7" oninput="Player.setVolume(+this.value);$i('playerVolLbl').textContent=Math.round(+this.value*100)+'%'">
+        <span id="playerVolLbl">70%</span>
+      </div>
+      <button class="pc" id="listBtn" onclick="toggleTrackList()" title="Toutes les pistes">☰</button>
+    </div>
+  </div>
+  <div class="r-ctrl chrome">
+    <button class="rc" onclick="prevPhase()" title="← Précédente">⏮</button>
+    <button class="rc" id="pBtn" onclick="togglePause()" style="min-width:118px">⏸ Pause</button>
+    <button class="rc" onclick="nextPhase()" title="→ Suivante">⏭</button>
+    <button class="rc" onclick="adjust(-60)">−1 min</button>
+    <button class="rc" onclick="adjust(60)">+1 min</button>
+    <button class="rc" id="splitBtn" onclick="togglePopup()" title="Fenêtre flottante">⧉</button>
+    <button class="rc" onclick="toggleFS()" title="Plein écran (F)">⛶</button>
+    <button class="rc warn" onclick="quitSession()" title="Quitter (Échap)">✕</button>
+    <div class="kbd"><kbd>Espace</kbd> pause · <kbd>→</kbd> suivante · <kbd>+</kbd>/<kbd>−</kbd> 1 min · <kbd>M</kbd> musique · <kbd>V</kbd> voix · <kbd>F</kbd> plein écran · l'interface s'efface après 3 s</div>
+  </div>
+  <a href="https://tom-rougeaud.github.io/casier-tom-rougeaud" target="_blank" id="trLink">// Tom Rougeaud</a>
+</div>
+<div id="ov" class="hidden">
+  <div class="ov-c">
+    <h2 id="ovT">Phase terminée</h2>
+    <div class="ovt" id="ovOver">+0:00</div>
+    <div class="ovl">de dépassement</div>
+    <div class="nx" id="ovNx"></div>
+    <div class="ov-a">
+      <button class="btn" onclick="extendPhase()">+ 2 min</button>
+      <button class="big" id="ovGo" onclick="nextPhase()">Phase suivante →</button>
+    </div>
+  </div>
+</div>
+<div id="summary" class="hidden">
+  <h2>Bilan</h2>
+  <div class="sub" id="sumSub"></div>
+  <table class="sumt"><thead><tr><th>Phase</th><th>Prévu</th><th>Réel</th><th>Écart</th></tr></thead><tbody id="sumBody"></tbody></table>
+  <div class="acts" style="margin-top:22px">
+    <button class="big" onclick="backToBuilder()">↩ Retour à l'éditeur</button>
+    <button class="btn" onclick="startSession()">Relancer</button>
+  </div>
+</div>
+<div id="ytDock" class="hidden"></div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ── utils ── */
+const Mem={};
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):(k in Mem?Mem[k]:d)}catch(e){return k in Mem?Mem[k]:d}}
+function lsSet(k,v){Mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const $i=id=>document.getElementById(id);
+function toast(m){const t=$i('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3000)}
+const fmt=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')};
+const fmtMin=m=>m>=60?Math.floor(m/60)+' h'+(m%60?' '+String(m%60).padStart(2,'0'):''):m+' min';
+const today=()=>new Date().toISOString().slice(0,10);
+const frDate=d=>{try{return new Date(d+'T12:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}catch(e){return d}};
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function hslToHex(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1))),hx=x=>Math.round(255*x).toString(16).padStart(2,'0');return '#'+hx(f(0))+hx(f(8))+hx(f(4))}
+function hexToHsl(hex){hex=(hex||'#888').replace('#','');if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');let r=parseInt(hex.slice(0,2),16)/255,g=parseInt(hex.slice(2,4),16)/255,b=parseInt(hex.slice(4,6),16)/255;const max=Math.max(r,g,b),min=Math.min(r,g,b);let h,s,l=(max+min)/2;if(max===min){h=0;s=0}else{const d=max-min;s=l>.5?d/(2-max-min):d/(max+min);if(max===r)h=((g-b)/d+(g<b?6:0));else if(max===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60}return{h,s:s*100,l:l*100}}
+
+/* ── 250 PHRASES ── */
+const PHRASE_CATS=[
+  {id:'attn',label:'Attention & Concentration',color:'#3B82F6'},
+  {id:'efft',label:'Effort & Persévérance',color:'#F59E0B'},
+  {id:'revu',label:'Régularité des révisions',color:'#10B981'},
+  {id:'meth',label:'Méthodologie',color:'#8B5CF6'},
+  {id:'time',label:'Gestion du temps',color:'#EF4444'},
+  {id:'inspi',label:'Inspirantes',color:'#06B6D4'},
+  {id:'fun',label:'Phrases drôles',color:'#EC4899'},
+];
+const PHRASES=[
+  {c:'attn',t:'Chaque minute d\'attention pleine vaut dix minutes d\'attention dispersée.'},
+  {c:'attn',t:'Ton cerveau est un muscle : plus tu te concentres, plus tu deviens efficace.'},
+  {c:'attn',t:'Éteins le bruit intérieur. La réponse que tu cherches est dans l\'exercice.'},
+  {c:'attn',t:'La concentration, c\'est choisir ce à quoi tu vas prêter attention.'},
+  {c:'attn',t:'Un esprit focalisé voit plus loin qu\'un esprit éparpillé.'},
+  {c:'attn',t:'L\'attention est la forme la plus rare et la plus pure de générosité envers soi-même.'},
+  {c:'attn',t:'Ce que tu fais maintenant définit celui que tu seras demain.'},
+  {c:'attn',t:'Sois là où tu es. Pas dans ta tête, pas sur ton téléphone : ici.'},
+  {c:'attn',t:'La distraction est l\'ennemi silencieux du progrès.'},
+  {c:'attn',t:'Chaque fois que tu résistes à la distraction, ton cerveau devient un peu plus fort.'},
+  {c:'attn',t:'Concentre-toi sur le processus, pas sur le résultat.'},
+  {c:'attn',t:'L\'élève attentif aujourd\'hui est l\'expert confiant de demain.'},
+  {c:'attn',t:'Ta plus grande ressource est ton attention. Ne la gaspille pas.'},
+  {c:'attn',t:'Quelques minutes de vraie concentration valent une heure d\'agitation.'},
+  {c:'attn',t:'Ce cours ne se répétera pas. Profites-en pleinement.'},
+  {c:'attn',t:'L\'ennui en classe est souvent le signal que tu n\'es pas assez curieux.'},
+  {c:'attn',t:'Cherche toujours le pourquoi derrière le quoi.'},
+  {c:'attn',t:'La curiosité est le moteur de l\'intelligence.'},
+  {c:'attn',t:'Ce que tu rates en une minute peut te coûter une heure de révision.'},
+  {c:'attn',t:'L\'attention est un choix que tu renouvelles à chaque instant.'},
+  {c:'attn',t:'Écouter activement, c\'est déjà travailler.'},
+  {c:'attn',t:'Chaque détail compte. Les meilleurs élèves le savent.'},
+  {c:'attn',t:'Ton attention est un cadeau que tu te fais à toi-même.'},
+  {c:'attn',t:'Ferme les yeux une seconde. Respire. Puis reviens à la tâche.'},
+  {c:'attn',t:'Regarder, écouter, comprendre — dans cet ordre.'},
+  {c:'attn',t:'Un élève qui écoute apprend deux fois.'},
+  {c:'attn',t:'Ton cerveau enregistre tout — assure-toi qu\'il enregistre les bonnes choses.'},
+  {c:'attn',t:'La qualité de ton attention détermine la qualité de ton apprentissage.'},
+  {c:'attn',t:'Écouter le cours, c\'est déjà faire la moitié du travail de révision.'},
+  {c:'attn',t:'Ne laisse pas une pensée parasite voler ta compréhension.'},
+  {c:'attn',t:'Un regard vers le tableau peut changer tout un raisonnement.'},
+  {c:'attn',t:'Poser une bonne question vaut mieux que dix mauvaises réponses.'},
+  {c:'attn',t:'L\'attention est la clé qui ouvre toutes les portes de la compréhension.'},
+  {c:'attn',t:'Être présent à ce qu\'on fait, c\'est déjà performer.'},
+  {c:'attn',t:'Chaque instant de concentration compte et s\'accumule.'},
+  {c:'efft',t:'L\'effort d\'aujourd\'hui est la compétence de demain.'},
+  {c:'efft',t:'Aucun travail sérieux ne reste sans récompense.'},
+  {c:'efft',t:'Ce n\'est pas le talent qui fait la différence, c\'est la régularité de l\'effort.'},
+  {c:'efft',t:'Les champions s\'entraînent quand ils n\'en ont pas envie. Toi aussi, tu peux.'},
+  {c:'efft',t:'L\'échec n\'est qu\'une étape sur le chemin du succès.'},
+  {c:'efft',t:'Essaie encore. Échoue mieux. C\'est ainsi qu\'on progresse.'},
+  {c:'efft',t:'La difficulté est la preuve que tu es en train d\'apprendre quelque chose de nouveau.'},
+  {c:'efft',t:'Tout expert a d\'abord été un débutant qui n\'a pas abandonné.'},
+  {c:'efft',t:'Le courage n\'est pas l\'absence de peur, c\'est continuer malgré elle.'},
+  {c:'efft',t:'Les résultats ne mentent jamais : ils reflètent l\'effort fourni.'},
+  {c:'efft',t:'Un petit pas chaque jour mène très loin en un an.'},
+  {c:'efft',t:'Ne te compare pas aux autres. Compare-toi à toi d\'hier.'},
+  {c:'efft',t:'La facilité est l\'ennemie de la croissance.'},
+  {c:'efft',t:'Chaque exercice difficile est une chance de progresser.'},
+  {c:'efft',t:'Ceux qui réussissent sont ceux qui se relèvent toujours.'},
+  {c:'efft',t:'Le plus dur, c\'est de commencer. Après, ça roule.'},
+  {c:'efft',t:'Tu n\'as pas besoin d\'être fort pour commencer, mais il faut commencer pour devenir fort.'},
+  {c:'efft',t:'L\'effort est honorable. L\'abandon est la seule vraie défaite.'},
+  {c:'efft',t:'Chaque problème que tu résous construit un nouveau circuit dans ton cerveau.'},
+  {c:'efft',t:'Faire de son mieux, c\'est déjà une victoire.'},
+  {c:'efft',t:'Ne cherche pas la facilité. Cherche la compréhension.'},
+  {c:'efft',t:'La persévérance transforme l\'impossible en possible.'},
+  {c:'efft',t:'Le seul mauvais effort, c\'est celui qu\'on ne fait pas.'},
+  {c:'efft',t:'L\'excellence n\'est pas un acte, c\'est une habitude.'},
+  {c:'efft',t:'Si c\'est difficile, c\'est que ça vaut la peine.'},
+  {c:'efft',t:'Ta zone de confort est confortable, mais elle ne t\'apprend rien.'},
+  {c:'efft',t:'Avance, même lentement. L\'important est de ne pas reculer.'},
+  {c:'efft',t:'Chaque erreur corrigée est un progrès réel.'},
+  {c:'efft',t:'Tu es capable de bien plus que ce que tu crois.'},
+  {c:'efft',t:'La réussite appartient à ceux qui n\'arrêtent pas d\'essayer.'},
+  {c:'efft',t:'L\'effort sincère ne passe jamais inaperçu.'},
+  {c:'efft',t:'Travailler dur aujourd\'hui pour ne pas regretter demain.'},
+  {c:'efft',t:'Chaque question posée est une preuve d\'intelligence, pas d\'ignorance.'},
+  {c:'efft',t:'La sueur de l\'effort aujourd\'hui est l\'encre de la réussite demain.'},
+  {c:'revu',t:'Réviser un peu chaque jour vaut mieux que tout réviser la veille.'},
+  {c:'revu',t:'La mémoire s\'entretient comme un jardin : un peu d\'eau chaque jour.'},
+  {c:'revu',t:'La répétition espacée est la technique la plus efficace pour mémoriser.'},
+  {c:'revu',t:'Vingt minutes de révision quotidienne valent deux heures la veille du contrôle.'},
+  {c:'revu',t:'Chaque soir, relis tes notes. Tu seras surpris de ce que tu retiens.'},
+  {c:'revu',t:'La régularité construit ce que l\'intensité ne peut pas maintenir.'},
+  {c:'revu',t:'Un cours relu le soir même reste en mémoire deux fois plus longtemps.'},
+  {c:'revu',t:'Construis ton savoir brique par brique, jour après jour.'},
+  {c:'revu',t:'La mémoire à long terme s\'inscrit par la répétition et le sens.'},
+  {c:'revu',t:'Faire des fiches, c\'est déjà réviser.'},
+  {c:'revu',t:'Un programme de révision respecté est une source de confiance le jour J.'},
+  {c:'revu',t:'Ne laisse jamais une semaine passer sans revoir ce qui a été vu.'},
+  {c:'revu',t:'Tes révisions d\'aujourd\'hui sont ton filet de sécurité de demain.'},
+  {c:'revu',t:'L\'élève régulier dort mieux la veille des examens.'},
+  {c:'revu',t:'Chaque révision est un investissement dont les intérêts se composent.'},
+  {c:'revu',t:'Le cerveau consolide les souvenirs pendant le sommeil : révise, puis dors bien.'},
+  {c:'revu',t:'Un quart d\'heure de révision par matière chaque soir change tout.'},
+  {c:'revu',t:'La régularité des révisions supprime le stress des examens.'},
+  {c:'revu',t:'Tes prochains examens se jouent dans les habitudes d\'aujourd\'hui.'},
+  {c:'revu',t:'Relis, récite, teste-toi : la meilleure méthode de révision en trois étapes.'},
+  {c:'revu',t:'Le savoir est un trésor qu\'on ne garde qu\'en le visitant souvent.'},
+  {c:'revu',t:'Les champions de la mémorisation révisent peu mais souvent.'},
+  {c:'revu',t:'La régularité bat toujours l\'intensité sur le long terme.'},
+  {c:'revu',t:'Les révisions régulières transforment le stress en confiance.'},
+  {c:'revu',t:'Chaque soir : qu\'ai-je appris aujourd\'hui ?'},
+  {c:'revu',t:'L\'élève qui révise régulièrement avance, même les jours sans motivation.'},
+  {c:'revu',t:'La discipline des révisions est une forme de respect envers toi-même.'},
+  {c:'revu',t:'Ce que tu apprends aujourd\'hui sera utile dans dix ans.'},
+  {c:'revu',t:'Ne pas réviser, c\'est accepter d\'oublier.'},
+  {c:'revu',t:'Construis des ponts entre les chapitres pour ne jamais te perdre.'},
+  {c:'revu',t:'Les connaissances qui durent sont celles qu\'on révise régulièrement.'},
+  {c:'revu',t:'Un résumé relu chaque semaine vaut mieux qu\'un cours jamais relu.'},
+  {c:'revu',t:'Les bonnes habitudes de révision se prennent tôt et durent longtemps.'},
+  {c:'revu',t:'Prendre soin de ses révisions, c\'est prendre soin de son futur.'},
+  {c:'revu',t:'Revoir un chapitre difficile trois fois, c\'est le maîtriser définitivement.'},
+  {c:'meth',t:'Comprendre vaut mieux qu\'apprendre par cœur.'},
+  {c:'meth',t:'Avant de mémoriser, assure-toi d\'avoir compris.'},
+  {c:'meth',t:'Une bonne méthode transforme le travail difficile en travail efficace.'},
+  {c:'meth',t:'Commence par les concepts, puis entraîne-toi sur les exercices.'},
+  {c:'meth',t:'Lire une fois ne suffit pas. Relis, reformule, explique.'},
+  {c:'meth',t:'Expliquer à voix haute ce qu\'on a compris est la meilleure façon de le consolider.'},
+  {c:'meth',t:'Fais des erreurs, puis analyse-les. C\'est là que la vraie compréhension commence.'},
+  {c:'meth',t:'Lis l\'énoncé deux fois avant de répondre.'},
+  {c:'meth',t:'Prends des notes dans tes propres mots, pas mot pour mot.'},
+  {c:'meth',t:'Construis un plan avant d\'écrire. Cela prend deux minutes et économise vingt.'},
+  {c:'meth',t:'La méthode est l\'intelligence organisée.'},
+  {c:'meth',t:'Fais des schémas, des tableaux, des cartes mentales : ton cerveau pense en images.'},
+  {c:'meth',t:'Ne saute jamais les étapes. Chacune est un fondement pour la suivante.'},
+  {c:'meth',t:'Cherche le sens avant de chercher la réponse.'},
+  {c:'meth',t:'Reformuler le problème dans ses propres mots, c\'est souvent le résoudre à moitié.'},
+  {c:'meth',t:'Travaille par blocs de 25 minutes, puis fais une pause de 5.'},
+  {c:'meth',t:'Le meilleur élève n\'est pas le plus intelligent, c\'est le plus méthodique.'},
+  {c:'meth',t:'Corriger ses erreurs est plus utile que de refaire ce qu\'on sait déjà.'},
+  {c:'meth',t:'La relecture est une étape, pas une option.'},
+  {c:'meth',t:'Un résumé d\'une page vaut mieux qu\'un cours de vingt pages non relu.'},
+  {c:'meth',t:'L\'auto-évaluation est la compétence des meilleurs apprenants.'},
+  {c:'meth',t:'Travaille la difficulté, pas la facilité.'},
+  {c:'meth',t:'Si tu ne peux pas l\'expliquer simplement, tu ne l\'as pas compris.'},
+  {c:'meth',t:'Note, organise, révise : trois verbes pour réussir.'},
+  {c:'meth',t:'Un problème bien posé est un problème à moitié résolu.'},
+  {c:'meth',t:'Travaille intelligemment, pas seulement dur.'},
+  {c:'meth',t:'La méthode de travail est la compétence la plus transférable de ta vie.'},
+  {c:'meth',t:'Une erreur comprise est une faiblesse transformée en force.'},
+  {c:'meth',t:'Chercher seul d\'abord, demander de l\'aide ensuite.'},
+  {c:'meth',t:'Classer ses cours dès leur retour est une habitude qui fait gagner du temps.'},
+  {c:'meth',t:'Ta capacité à t\'organiser est aussi importante que ta capacité à comprendre.'},
+  {c:'meth',t:'Un brouillon bien organisé est la moitié d\'une bonne réponse.'},
+  {c:'meth',t:'Note tes questions pendant le cours et cherche les réponses après.'},
+  {c:'meth',t:'Apprendre sans réfléchir, c\'est perdre son temps.'},
+  {c:'meth',t:'La méthode, c\'est le raccourci le plus long mais le plus sûr.'},
+  {c:'time',t:'Le temps ne se rattrape pas. Utilise-le maintenant.'},
+  {c:'time',t:'Chaque minute bien utilisée est une minute gagnée sur l\'avenir.'},
+  {c:'time',t:'Procrastiner, c\'est emprunter du temps à ton futur toi — avec des intérêts.'},
+  {c:'time',t:'La gestion du temps commence par la gestion des priorités.'},
+  {c:'time',t:'Ce qui est urgent n\'est pas toujours important. Distingue-les.'},
+  {c:'time',t:'Le meilleur moment pour commencer était hier. Le deuxième, c\'est maintenant.'},
+  {c:'time',t:'Divise les grandes tâches en petites. Puis commence par la première.'},
+  {c:'time',t:'Le temps perdu ne revient jamais, mais le travail fait reste.'},
+  {c:'time',t:'Cinq minutes maintenant évitent une heure de stress plus tard.'},
+  {c:'time',t:'Fais d\'abord ce que tu n\'as pas envie de faire. Le reste sera plus facile.'},
+  {c:'time',t:'Respecter les délais est une forme de respect envers les autres et envers toi-même.'},
+  {c:'time',t:'Une pause méritée vaut cent fois une pause volée.'},
+  {c:'time',t:'Le temps que tu passes à t\'organiser te fait gagner du temps ensuite.'},
+  {c:'time',t:'Ne reporte pas à demain ce que tu peux apprendre aujourd\'hui.'},
+  {c:'time',t:'Vingt minutes concentrées valent deux heures d\'agitation.'},
+  {c:'time',t:'Commence. Tu ajusteras en chemin.'},
+  {c:'time',t:'Construis tes journées autour de ce qui compte vraiment.'},
+  {c:'time',t:'Un objectif sans plan est un souhait. Un plan sans action est un rêve.'},
+  {c:'time',t:'Fixer un délai transforme une intention en engagement.'},
+  {c:'time',t:'Le temps file. Tes efforts restent.'},
+  {c:'time',t:'Celui qui maîtrise son temps maîtrise sa vie.'},
+  {c:'time',t:'Le temps perdu en classe se retrouve dans le stress des révisions.'},
+  {c:'time',t:'Investis ton temps comme tu investirais de l\'argent : avec discernement.'},
+  {c:'time',t:'Travailler maintenant pour avoir du temps libre demain.'},
+  {c:'time',t:'Chaque tâche accomplie libère de l\'énergie pour la suivante.'},
+  {c:'time',t:'Savoir dire non à une distraction, c\'est dire oui à sa réussite.'},
+  {c:'time',t:'Planifier sa semaine le dimanche soir change tout son déroulement.'},
+  {c:'time',t:'La plus grande perte de temps, c\'est le temps passé à regretter.'},
+  {c:'time',t:'Un agenda respecté est une promesse qu\'on se tient à soi-même.'},
+  {c:'time',t:'Le temps libre bien mérité est le plus beau cadeau qu\'on peut se faire.'},
+  {c:'time',t:'Le temps est la seule ressource qui ne se renouvelle pas.'},
+  {c:'time',t:'Chaque heure de travail posé te rapproche de tes objectifs.'},
+  {c:'time',t:'Ni trop tôt ni trop tard : à temps, c\'est parfait.'},
+  {c:'time',t:'Le retard n\'est jamais anodin. Il se paie toujours.'},
+  {c:'time',t:'Ce n\'est pas le temps qui manque, c\'est la priorité qui est mal posée.'},
+  {c:'inspi',t:'La connaissance est la seule richesse qui augmente quand on la partage.'},
+  {c:'inspi',t:'Apprendre, c\'est allumer une lumière qui ne s\'éteint jamais.'},
+  {c:'inspi',t:'Ta vie future se joue dans les choix que tu fais aujourd\'hui.'},
+  {c:'inspi',t:'L\'éducation est l\'arme la plus puissante pour changer le monde.'},
+  {c:'inspi',t:'Chaque jour est une nouvelle chance de devenir meilleur.'},
+  {c:'inspi',t:'L\'intelligence n\'est pas innée. Elle se construit.'},
+  {c:'inspi',t:'Les rêves ont besoin de travail pour devenir réalité.'},
+  {c:'inspi',t:'Sois curieux. Les gens curieux apprennent toujours plus.'},
+  {c:'inspi',t:'Le monde appartient à ceux qui apprennent continuellement.'},
+  {c:'inspi',t:'Ton avenir se construit dans les salles de classe d\'aujourd\'hui.'},
+  {c:'inspi',t:'Crois en toi, même quand personne d\'autre ne le fait encore.'},
+  {c:'inspi',t:'Le succès est la somme de petits efforts répétés chaque jour.'},
+  {c:'inspi',t:'Apprends comme si tu devais vivre éternellement.'},
+  {c:'inspi',t:'Les grandes choses commencent toujours par une petite décision.'},
+  {c:'inspi',t:'Chaque connaissance acquise est une liberté gagnée.'},
+  {c:'inspi',t:'L\'école n\'est pas une contrainte. C\'est une opportunité rare.'},
+  {c:'inspi',t:'Ce que tu apprends ne peut pas être volé.'},
+  {c:'inspi',t:'La culture est ce qui reste quand on a tout oublié.'},
+  {c:'inspi',t:'L\'avenir appartient à ceux qui préparent le présent.'},
+  {c:'inspi',t:'Une bonne éducation ouvre des portes que l\'argent seul ne peut pas ouvrir.'},
+  {c:'inspi',t:'La vraie réussite, c\'est de devenir quelqu\'un dont on est fier.'},
+  {c:'inspi',t:'Ce que tu semès aujourd\'hui, tu le moissonneras demain.'},
+  {c:'inspi',t:'Le savoir ne prend pas de place — dans la tête.'},
+  {c:'inspi',t:'Apprendre à apprendre est la compétence du XXIe siècle.'},
+  {c:'inspi',t:'La confiance en soi se construit à force de petites réussites accumulées.'},
+  {c:'inspi',t:'Le doute est le début de la réflexion. Ne le fuis pas.'},
+  {c:'inspi',t:'Demander de l\'aide n\'est pas une faiblesse, c\'est une intelligence.'},
+  {c:'inspi',t:'Chaque chapitre compris est une clé qui ouvre le suivant.'},
+  {c:'inspi',t:'Un objectif clair rend chaque effort plus facile.'},
+  {c:'inspi',t:'La précision dans le langage est la précision dans la pensée.'},
+  {c:'inspi',t:'Prendre le temps de vérifier. Les erreurs d\'inattention coûtent cher.'},
+  {c:'inspi',t:'Un mot de vocabulaire appris par jour, c\'est 365 nouveaux mots par an.'},
+  {c:'inspi',t:'L\'histoire nous apprend à comprendre le présent et à construire l\'avenir.'},
+  {c:'inspi',t:'Aujourd\'hui, fais de ton mieux. Demain, tu feras encore mieux.'},
+  {c:'inspi',t:'Ce que tu sais faire facilement aujourd\'hui, tu ne savais pas le faire hier.'},
+  {c:'inspi',t:'Chaque élève qui pose une question courageuse aide toute la classe.'},
+  {c:'fun',t:'Si tu lis ceci, c\'est que tu n\'es pas en train de faire ton travail.'},
+  {c:'fun',t:'Le café ne fait pas les devoirs à ta place. Mais il aide.'},
+  {c:'fun',t:'La photocopie du cours de ton voisin ne sait pas ce que tu n\'as pas compris.'},
+  {c:'fun',t:'Un problème de maths résolu mérite au moins un biscuit.'},
+  {c:'fun',t:'Les neurones que tu n\'utilises pas boudent dans un coin.'},
+  {c:'fun',t:'Statistiquement, les élèves qui regardent par la fenêtre voient surtout de l\'air.'},
+  {c:'fun',t:'Non, j\'avais compris mais j\'ai oublié n\'est pas une réponse valide à l\'examen.'},
+  {c:'fun',t:'L\'inspiration vient en travaillant. Pour les autres choses, il y a YouTube.'},
+  {c:'fun',t:'Le zéro est un score. Ce n\'est pas un objectif.'},
+  {c:'fun',t:'Ton stylo a plus de potentiel que ton téléphone pour réussir ce cours.'},
+  {c:'fun',t:'Regarder quelqu\'un travailler ne transmet pas ses connaissances par osmose.'},
+  {c:'fun',t:'Si tu attends d\'avoir envie de travailler, tu attendras longtemps.'},
+  {c:'fun',t:'La calculatrice calcule. Toi, tu réfléchis. C\'est ça la vraie différence.'},
+  {c:'fun',t:'Les révisions ne se font pas la nuit avant. C\'est prouvé scientifiquement.'},
+  {c:'fun',t:'Le professeur qui te donne ce devoir avait aussi des devoirs. Et il s\'en est sorti.'},
+  {c:'fun',t:'Les idées brillantes viennent rarement à ceux qui regardent le plafond.'},
+  {c:'fun',t:'Non, relire ses notes à l\'envers ne les fait pas rentrer plus vite dans le cerveau.'},
+  {c:'fun',t:'Si ce cours te semble inutile, attends d\'avoir besoin de ce qu\'il t\'apprend.'},
+  {c:'fun',t:'Travailler en musique, c\'est bien. À condition que la musique soit de fond.'},
+  {c:'fun',t:'Ton avenir te remercie déjà pour les efforts que tu fais aujourd\'hui.'},
+  {c:'attn',t:'Si tu penses à autre chose, reviens doucement. C\'est ça, la concentration : se reprendre.'},
+  {c:'attn',t:'L\'attention n\'est pas un don. C\'est une compétence qui s\'entraîne chaque jour.'},
+  {c:'attn',t:'Un élève attentif cinq minutes apprend plus qu\'un élève distrait une heure.'},
+  {c:'efft',t:'Même un effort imparfait vaut infiniment mieux qu\'une intention parfaite.'},
+  {c:'efft',t:'Ce n\'est pas la peine de courir. Il suffit de partir à temps — et de ne pas s\'arrêter.'},
+  {c:'efft',t:'Chaque kilo de sueur évite un litre de larmes le jour de l\'examen.'},
+  {c:'revu',t:'Tes révisions régulières sont la meilleure assurance tous risques pour ton avenir.'},
+  {c:'revu',t:'Une heure de révision le week-end, c\'est un contrôle de moins à craindre en semaine.'},
+  {c:'revu',t:'Les champions du bac révisent en novembre. Les autres regrettent en mai.'},
+  {c:'meth',t:'Avant de demander je n\'ai pas compris, demande-toi ce que tu as essayé.'},
+  {c:'meth',t:'Copier une correction sans comprendre, c\'est repeindre un mur fissuré.'},
+  {c:'meth',t:'Faire un schéma, c\'est forcer son cerveau à organiser ce qu\'il croit savoir.'},
+  {c:'time',t:'Chaque fois que tu remets à plus tard, tu voles du temps à ton futur toi.'},
+  {c:'time',t:'Une tâche de cinq minutes repoussée dix fois coûte cinquante minutes d\'anxiété.'},
+  {c:'time',t:'Le temps d\'une heure de cours est une opportunité. Elle ne reviendra pas.'},
+  {c:'inspi',t:'L\'école fabrique des gens libres. Prends-en conscience.'},
+  {c:'inspi',t:'Ce que tu semès en classe, tu le récolteras dans ta vie.'},
+  {c:'fun',t:'Attention : la fatigue du vendredi soir n\'est pas une raison valable pour ne pas réviser le samedi.'},
+  {c:'fun',t:'Les neurones s\'ennuient quand on ne leur donne rien à faire. Donne-leur un problème.'},
+  {c:'fun',t:'Non, regarder des vidéos de mathématiques en mangeant des céréales ne compte pas comme révision.'},
+  {c:'fun',t:'Contrairement à la légende, le manuel scolaire peut s\'ouvrir sans danger.'},
+];
+
+/* ── Items ── */
+// [nom, cd, hue, defaultMin(opt)]
+const ITEMS=[
+  ['Mise en route',false,95],['Cours',false,200],['Exercices individuels',false,142],
+  ['Travail en binôme',false,46],['Travail de groupe',false,266],['Révisions',false,28],
+  ['Mise en commun',false,192],['Évaluation',true,355],['Correction',false,212],
+  ['Récupération',false,175,5],['Recherches Personnelles',false,290],
+  ['Bilan',false,330],['Personnalisé',false,230]
+];
+const DEFAULT_TYPE=12;
+/* Séance toujours vierge au démarrage */
+let S={name:'',date:today(),phases:[],cap:null,tiers:false};
+let uid=1;
+
+function renderItems(){
+  $i('items').innerHTML=ITEMS.map((it,i)=>
+    `<button class="it" onclick="addPhase(${i})"><span class="dot" style="background:${hslToHex(it[2],58,46)}"></span>${it[0]}${it[1]?' ⏳':''}</button>`).join('');
+}
+function addPhase(i){
+  let[name,cd,hue,,defaultMin]=ITEMS[i];
+  if(name==='Personnalisé'){const n=prompt('Nom de la phase :','Activité');if(n===null)return;name=n.trim()||'Activité'}
+  S.phases.push({id:uid++,name,type:i,hue,color:null,min:defaultMin||null,cd});
+  persist();renderList();
+  if(!defaultMin){const ins=document.querySelectorAll('#list .mn');const last=ins[ins.length-1];if(last)last.focus();}
+}
+const effMin=p=>(p.cd&&S.tiers&&p.min)?Math.ceil(p.min*4/3):p.min;
+const getColor=p=>p.color||hslToHex(p.hue,58,44);
+function renderList(){
+  const L=$i('list');
+  if(!S.phases.length){L.innerHTML='<div class="empty">Touchez un item ci-dessus, puis saisissez la durée en minutes.</div>';updateTotal();return}
+  L.innerHTML=S.phases.map((p,i)=>`
+    <div class="ph" id="ph${p.id}">
+      <div class="ord">
+        <button onclick="move(${i},-1)" ${i===0?'disabled style="opacity:.2"':''}>▲</button>
+        <button onclick="move(${i},1)" ${i===S.phases.length-1?'disabled style="opacity:.2"':''}>▼</button>
+      </div>
+      <input class="nm" value="${(p.name||'').replace(/"/g,'&quot;')}" onchange="S.phases[${i}].name=this.value.trim()||'Phase';persist()" aria-label="Nom">
+      ${p.cd&&S.tiers&&p.min?`<span class="tt">${p.min}′→${effMin(p)}′</span>`:''}
+      <input class="mn ${p.min?'':'miss'}" type="number" min="1" max="240" placeholder="min" value="${p.min||''}"
+        oninput="S.phases[${i}].min=parseInt(this.value,10)||null;persist();updateTotal();this.classList.toggle('miss',!S.phases[${i}].min)">
+      <span class="un">min</span>
+      <label class="cd"><input type="checkbox" ${p.cd?'checked':''} onchange="S.phases[${i}].cd=this.checked;persist();renderList()"> ⏳</label>
+      <input class="cl" type="color" value="${getColor(p)}" title="Couleur" onchange="S.phases[${i}].color=this.value;persist();renderList()">
+      ${p.color?`<button class="rst" onclick="S.phases[${i}].color=null;persist();renderList()" title="Réinit.">↺</button>`:''}
+      <button class="del" onclick="S.phases.splice(${i},1);persist();renderList()" title="Supprimer">✕</button>
+    </div>`).join('');
+  updateTotal();
+}
+function move(i,d){const a=S.phases;[a[i],a[i+d]]=[a[i+d],a[i]];persist();renderList()}
+function totalMin(){return S.phases.reduce((s,p)=>s+(effMin(p)||0),0)}
+function ready(){return S.phases.length&&S.phases.every(p=>p.min>0)}
+function updateTotal(){
+  const t=totalMin();$i('totLbl').textContent=fmtMin(t);$i('go').disabled=!ready();
+  const cap=S.cap,w=$i('capWarn'),f=$i('fitBtn');
+  if(cap&&t>cap){w.textContent='Dépasse de '+(t-cap)+' min';w.style.color='var(--red)';w.classList.remove('hidden');f.classList.remove('hidden')}
+  else if(cap){w.textContent='✓ marge '+(cap-t)+' min';w.style.color='var(--green)';w.classList.remove('hidden');f.classList.add('hidden')}
+  else{w.classList.add('hidden');f.classList.add('hidden')}
+}
+function onCap(){const v=parseInt($i('oCap').value,10);S.cap=v>0?v:null;persist();updateTotal()}
+function autoFit(){
+  if(!S.cap)return;const t=totalMin();if(t<=S.cap)return;
+  const k=S.cap/t;S.phases.forEach(p=>{if(p.min)p.min=Math.max(1,Math.floor(p.min*k))});
+  persist();renderList();toast('Durées réduites pour tenir en '+fmtMin(S.cap));
+}
+function persist(){S.name=$i('sName').value;S.date=$i('sDate').value||today();lsSet('cs.draft',S)}
+
+/* ── Réglages ── */
+function saveSettings(){
+  lsSet('cs.settings',{
+    chronoColor:$i('oChronoColor').value,
+    musicMode:$i('oMusicMode').value,
+    phrasesOn:$i('oPhrases').checked,
+    catDisabled:PHRASE_CATS.filter(c=>{const el=document.querySelector('.cat-sw[data-id="'+c.id+'"] input');return el&&!el.checked}).map(c=>c.id)
+  });
+}
+function loadSettings(){
+  const s=lsGet('cs.settings',{});
+  $i('oChronoColor').value=s.chronoColor||'#16181D';
+  $i('oMusicMode').value=s.musicMode||'mp3';
+  $i('oPhrases').checked=s.phrasesOn!==false;
+  window._disabledCats=new Set(s.catDisabled||[]);
+  setTimeout(fetchGitHubTracks,800);
+}
+function renderCatToggles(){
+  const dis=window._disabledCats||new Set();
+  $i('catToggles').innerHTML=PHRASE_CATS.map(c=>
+    `<label class="cat-sw" data-id="${c.id}"><input type="checkbox" ${dis.has(c.id)?'':'checked'} onchange="saveSettings()"><span class="cdot" style="background:${c.color}"></span>${c.label}</label>`).join('');
+}
+function addCustomPhrase(){const v=$i('newPhraseInput').value.trim();if(!v)return;const A=lsGet('cs.custom_phrases',[]);A.push(v);lsSet('cs.custom_phrases',A);$i('newPhraseInput').value='';renderCustomPhrases();toast('Phrase ajoutée')}
+function renderCustomPhrases(){
+  const A=lsGet('cs.custom_phrases',[]);
+  $i('customPhList').innerHTML=A.length?A.map((t,i)=>`<div class="cph"><span>${t}</span><button onclick="delCPh(${i})">✕</button></div>`).join(''):'<div style="font-size:.78rem;color:var(--mut);padding:4px 6px">Aucune phrase personnalisée.</div>';
+}
+function delCPh(i){const A=lsGet('cs.custom_phrases',[]);A.splice(i,1);lsSet('cs.custom_phrases',A);renderCustomPhrases()}
+
+/* ── Séances ── */
+function seanceData(){
+  return {app:'chrono-seance',version:5,name:$i('sName').value.trim()||'Séance sans nom',date:$i('sDate').value||today(),
+    cap:S.cap,tiers:S.tiers,phases:S.phases.map(p=>({name:p.name,min:p.min,cd:!!p.cd,type:p.type,hue:p.hue,color:p.color})),
+    options:{sound:$i('oSound').checked,voice:$i('oVoice').checked,chronoColor:$i('oChronoColor').value}};
+}
+function applySeance(d){
+  S.phases=(d.phases||[]).map(p=>({id:uid++,name:p.name||'Phase',min:p.min||null,cd:!!p.cd,type:p.type!=null?p.type:DEFAULT_TYPE,hue:p.hue!=null?p.hue:230,color:p.color||null}));
+  S.cap=d.cap||null;S.tiers=!!d.tiers;S.name=d.name||'';S.date=d.date||today();
+  $i('sName').value=S.name;$i('sDate').value=S.date;$i('oCap').value=S.cap||'';$i('oTiers').checked=S.tiers;
+  const o=d.options||{};$i('oSound').checked=o.sound!==false;$i('oVoice').checked=!!o.voice;
+  if(o.chronoColor)$i('oChronoColor').value=o.chronoColor;
+  saveSettings();persist();renderList();
+}
+function renderSeances(){
+  const A=lsGet('cs.seances',[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const t=today();
+  $i('seances').innerHTML=A.length?A.map(s=>{
+    const b=s.date===t?['today','Aujourd\'hui']:(s.date>t?['next','À venir']:['past','Passée']);
+    return `<div class="se"><span class="d">${frDate(s.date)}</span><span class="n">${s.name}</span><span class="b ${b[0]}">${b[1]}</span><button class="a" onclick="loadSeance('${s.id}')">Charger</button><button class="a" onclick="delSeance('${s.id}')">Suppr.</button></div>`}).join('')
+    :'<div class="empty">Aucune séance programmée.</div>';
+}
+function saveSeance(){if(!S.phases.length)return toast('Le déroulé est vide');const d=seanceData();d.id='s'+Date.now();const A=lsGet('cs.seances',[]),i=A.findIndex(x=>x.name===d.name&&x.date===d.date);if(i>=0){if(!confirm('Remplacer la séance existante ?'))return;A[i]=d}else A.push(d);lsSet('cs.seances',A);renderSeances();toast('Séance enregistrée')}
+function loadSeance(id){const s=lsGet('cs.seances',[]).find(x=>x.id===id);if(s){applySeance(s);toast('Séance chargée');window.scrollTo({top:0,behavior:'smooth'})}}
+function delSeance(id){const A=lsGet('cs.seances',[]),s=A.find(x=>x.id===id);if(s&&confirm('Supprimer « '+s.name+' » ?')){lsSet('cs.seances',A.filter(x=>x.id!==id));renderSeances()}}
+
+/* ── Export/Import ── */
+function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},400)}
+const slug=s=>(s||'seance').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()||'seance';
+function exportJSON(){if(!S.phases.length)return toast('Le déroulé est vide');const d=seanceData();dl(slug(d.name)+'_'+d.date+'.json',JSON.stringify(d,null,2),'application/json')}
+function importJSON(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(Array.isArray(d))d=d[0];if(!d||!Array.isArray(d.phases))throw 0;applySeance(d);toast('Séance importée')}catch(e){toast('Fichier non reconnu')}};r.readAsText(f);inp.value=''}
+function exportHTML(){
+  if(!ready())return toast('Complétez toutes les durées avant d\'exporter');
+  const d=seanceData();const clone=document.documentElement.cloneNode(true);
+  const old=clone.querySelector('#embeddedSeance');if(old)old.remove();
+  const json=JSON.stringify(d).replace(/<\//g,'<\\/');
+  let html='<!DOCTYPE html>\n'+clone.outerHTML;
+  html=html.replace('</head>','<script type="application/json" id="embeddedSeance">'+json+'<\/script>\n</head>');
+  dl(slug(d.name)+'_'+d.date+'.html',html,'text/html');
+  toast('HTML autonome créé');
+}
+
+/* ── Audio : signaux ── */
+let AC=null;
+function ac(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,t0,dur,vol,type){const c=ac(),o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g).connect(c.destination);o.start(t0);o.stop(t0+dur+.05)}
+function chime(n){if(!$i('oSound').checked)return;const t=ac().currentTime;(n===1?[880]:[660,880]).forEach((f,i)=>tone(f,t+i*.18,.5,.18,'sine'))}
+function gong(){if(!$i('oSound').checked)return;const t=ac().currentTime;[523.25,659.25,784].forEach((f,i)=>tone(f,t+i*.14,1.6,.2,'triangle'));tone(196,t,2.2,.15,'sine')}
+
+/* ── Musique : 5 ambiances (nappes douces restaurées + modes plus mélodiques) ── */
+const Amb={
+  playing:false,master:null,timers:[],sources:[],style:'pad',vol:.3,
+  start(style,vol){
+    this.stop();const c=ac();
+    this.master=c.createGain();this.master.gain.value=0;
+    const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;lp.Q.value=.5;
+    this.master.connect(lp).connect(c.destination);
+    this.vol=vol!=null?vol:this.vol;this.style=style;this.playing=true;this.timers=[];this.sources=[];
+    this.master.gain.linearRampToValueAtTime(this.vol,c.currentTime+2.5);
+    ({pad:this.padInit,arpeges:this.arpInit,melodie:this.melInit,cloches:this.clochesInit,pink:this.pinkInit})[style]?.call(this,c);
+  },
+  setVolume(v){this.vol=v;if(this.master&&AC){try{this.master.gain.linearRampToValueAtTime(v,AC.currentTime+.4)}catch(e){}}},
+  stop(){
+    if(!this.playing)return;this.playing=false;
+    this.timers.forEach(t=>{clearTimeout(t);clearInterval(t)});this.timers=[];
+    this.sources.forEach(s=>{try{s.stop(AC?AC.currentTime+1.2:0)}catch(e){}});this.sources=[];
+    if(this.master){const m=this.master;try{m.gain.linearRampToValueAtTime(0,ac().currentTime+1.4)}catch(e){}
+      setTimeout(()=>{try{m.disconnect()}catch(e){}},1600)}
+    this.master=null;
+  },
+  /* Nappes douces (originales restorées) — accords chauds 130–440 Hz */
+  padInit(c){
+    const chords=[
+      [[174.61,220,261.63],[196,246.94,293.66],[164.81,196,261.63],[220,261.63,329.63]],
+      [[130.81,164.81,196],[146.83,184.99,220],[155.56,195.99,233.08],[138.59,174.61,207.65]]
+    ];
+    const prog=chords[Math.floor(Math.random()*chords.length)];
+    const rev=c.createDelay();rev.delayTime.value=.38;const rfb=c.createGain();rfb.gain.value=.2;
+    rev.connect(rfb).connect(rev);rev.connect(this.master);
+    let step=0;
+    const pad=()=>{
+      if(!this.playing)return;const t=c.currentTime,ch=prog[step++%prog.length];
+      ch.forEach((f,i)=>{
+        const o=c.createOscillator(),g=c.createGain();
+        o.type=i%2===0?'sine':'triangle';o.frequency.value=f;o.detune.value=(i-1)*3;
+        g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.44/ch.length,t+3);g.gain.linearRampToValueAtTime(0,t+10);
+        o.connect(g);g.connect(this.master);g.connect(rev);o.start(t);o.stop(t+11);this.sources.push(o);
+      });
+      const b=c.createOscillator(),bg=c.createGain();b.type='sine';b.frequency.value=ch[0]/2;
+      bg.gain.setValueAtTime(0,t);bg.gain.linearRampToValueAtTime(.25,t+3);bg.gain.linearRampToValueAtTime(0,t+10);
+      b.connect(bg).connect(this.master);b.start(t);b.stop(t+11);this.sources.push(b);
+      this.timers.push(setTimeout(pad,9000));
+    };pad();
+  },
+  /* Arpèges légers — pentatonique médium 260–880 Hz, plus audible et mélodique */
+  arpInit(c){
+    const penta=[261.63,329.63,392,523.25,659.25,783.99];
+    const delay=c.createDelay();delay.delayTime.value=.32;const dfb=c.createGain();dfb.gain.value=.28;
+    delay.connect(dfb).connect(delay);delay.connect(this.master);
+    const patterns=[[0,2,4,2],[0,1,3,5],[2,4,5,3],[1,3,5,4]];let pi=0;
+    const arp=()=>{
+      if(!this.playing)return;const t=c.currentTime;
+      const pat=patterns[pi++%patterns.length];const spd=.42+Math.random()*.18;
+      pat.forEach((deg,i)=>{
+        const f=penta[Math.min(deg,penta.length-1)]*(Math.random()<.12?2:1);
+        const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;
+        const st=t+i*spd;
+        g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(.32,st+.06);g.gain.exponentialRampToValueAtTime(.0001,st+spd*1.6);
+        o.connect(g);g.connect(this.master);g.connect(delay);o.start(st);o.stop(st+spd*1.8);this.sources.push(o);
+      });
+      // note de basse douce
+      const b=c.createOscillator(),bg=c.createGain();b.type='sine';b.frequency.value=penta[0]/2;
+      bg.gain.setValueAtTime(0,t);bg.gain.linearRampToValueAtTime(.18,t+.12);bg.gain.exponentialRampToValueAtTime(.0001,t+2.2);
+      b.connect(bg).connect(this.master);b.start(t);b.stop(t+2.4);this.sources.push(b);
+      this.timers.push(setTimeout(arp,spd*pat.length*1000+600+Math.random()*800));
+    };arp();
+  },
+  /* Mélodie sereine — ligne mélodique simple et audible, gamme majeure 260–660 Hz */
+  melInit(c){
+    const scale=[261.63,293.66,329.63,349.23,392,440,493.88,523.25,587.33,659.25];
+    const delay=c.createDelay();delay.delayTime.value=.45;const dfb=c.createGain();dfb.gain.value=.3;
+    delay.connect(dfb).connect(delay);delay.connect(this.master);
+    let last=4;
+    const note=()=>{
+      if(!this.playing)return;const t=c.currentTime;
+      const step=(Math.random()<.6?1:-1)*(Math.random()<.65?1:(Math.random()<.5?2:3));
+      last=Math.max(0,Math.min(scale.length-1,last+step));
+      const f=scale[last];const dur=.65+Math.random()*.9;
+      const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;
+      const o2=c.createOscillator(),g2=c.createGain();o2.type='triangle';o2.frequency.value=f*2.005;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.34,t+.07);g.gain.linearRampToValueAtTime(.22,t+dur*.6);g.gain.exponentialRampToValueAtTime(.0001,t+dur+.25);
+      g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(.1,t+.07);g2.gain.exponentialRampToValueAtTime(.0001,t+dur+.25);
+      o.connect(g);g.connect(this.master);g.connect(delay);o2.connect(g2).connect(this.master);
+      o.start(t);o.stop(t+dur+.4);o2.start(t);o2.stop(t+dur+.4);
+      this.sources.push(o);this.sources.push(o2);
+      this.timers.push(setTimeout(note,dur*1000+Math.random()*350+80));
+    };note();
+    // bourdon léger
+    const dr=c.createOscillator(),dg=c.createGain();dr.type='sine';dr.frequency.value=130.81;
+    dg.gain.value=.08;dr.connect(dg).connect(this.master);dr.start();this.sources.push(dr);
+  },
+  /* Cloches douces — timbres clairs espacés, très mélodiques */
+  clochesInit(c){
+    const notes=[392,523.25,659.25,784,523.25,440,392,349.23];let ni=0;
+    const cloche=()=>{
+      if(!this.playing)return;const t=c.currentTime;
+      const f=notes[ni++%notes.length];
+      // Partiel fondamental + harmoniques
+      [[f,.45],[f*2,.18],[f*3.01,.08],[f*4.02,.04]].forEach(([freq,vol])=>{
+        const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=freq;
+        g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+3.5);
+        o.connect(g).connect(this.master);o.start(t);o.stop(t+4);this.sources.push(o);
+      });
+      this.timers.push(setTimeout(cloche,1800+Math.random()*2200));
+    };cloche();
+    // nappe de fond légère
+    const b=c.createOscillator(),bg=c.createGain();b.type='sine';b.frequency.value=196;
+    bg.gain.value=.08;b.connect(bg).connect(this.master);b.start();this.sources.push(b);
+  },
+  /* Bruit rose — concentration, inchangé */
+  pinkInit(c){
+    const len=c.sampleRate*2,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;
+      b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.96900*b2+w*.1538520;
+      b3=.86650*b3+w*.3104856;b4=.55000*b4+w*.5329522;b5=-.7616*b5-w*.0168980;
+      d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}
+    const src=c.createBufferSource();src.buffer=buf;src.loop=true;
+    const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1100;
+    const g=c.createGain();g.gain.value=.5;
+    src.connect(lp).connect(g).connect(this.master);src.start();this.sources.push(src);
+  }
+};
+function onAmbChange(){if(Amb.playing)Amb.start('pad',.15)}
+function onAmbVolInput(){}
+function testAmbient(){}
+function onMusicModeChange(){saveSettings()}
+
+/* ── GitHub track loader — sous-dossiers automatiques ── */
+function cleanFilename(n){
+  return n.replace(/\.(mp3|m4a|ogg|wav|flac)$/i,'')
+    .replace(/\s*[\(\[]?freetouse\.com[\)\]]?\s*/gi,'')
+    .replace(/\s*[\(\[]?free\s*to\s*use[\)\]]?\s*/gi,'')
+    .replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+}
+
+const MAIN_GH={repo:'tom-rougeaud/chrono',path:'MUSIQUES LIBRES',ref:'main'};
+
+async function fetchGitHubTracks(){
+  const st=$i('ghStatus');if(st)st.textContent='Connexion à GitHub…';
+  const API_HEAD={headers:{'Accept':'application/vnd.github.v3+json'}};
+  const makeTrack=(f,folder)=>({url:f.download_url,name:f.name,title:cleanFilename(f.name),artist:'',album:'',folder});
+  const isAudio=f=>f.type==='file'&&/\.(mp3|m4a|ogg|wav|flac)$/i.test(f.name);
+  let allTracks=[];
+  try{
+    const enc=MAIN_GH.path.split('/').map(encodeURIComponent).join('/');
+    const res=await fetch('https://api.github.com/repos/'+MAIN_GH.repo+'/contents/'+enc+'?ref='+MAIN_GH.ref,API_HEAD);
+    if(!res.ok){if(st)st.textContent='GitHub inaccessible ('+res.status+'). Mode local disponible.';return}
+    const items=await res.json();
+    if(!Array.isArray(items)){if(st)st.textContent='Réponse GitHub inattendue.';return}
+    // Fichiers audio à la racine du dossier principal
+    items.filter(isAudio).forEach(f=>allTracks.push(makeTrack(f,MAIN_GH.path)));
+    // Sous-dossiers — récupérés en parallèle, les dossiers vides ou inaccessibles sont ignorés
+    const dirs=items.filter(i=>i.type==='dir');
+    await Promise.all(dirs.map(async dir=>{
+      try{
+        const r=await fetch(dir.url,API_HEAD);
+        if(!r.ok)return;
+        const files=await r.json();
+        if(!Array.isArray(files)||!files.length)return;
+        files.filter(isAudio).forEach(f=>allTracks.push(makeTrack(f,dir.name)));
+      }catch(e){}
+    }));
+    if(!allTracks.length){if(st)st.textContent='Aucun fichier audio trouvé pour l\'instant.';return}
+    // Mélange
+    for(let i=allTracks.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[allTracks[i],allTracks[j]]=[allTracks[j],allTracks[i]]}
+    Player.load(allTracks);
+    if(st)st.textContent=allTracks.length+' piste(s) chargée(s) depuis '+(dirs.length||0)+' sous-dossier(s) ✓';
+    const pv=$i('ghTrackPreview');
+    if(pv)pv.innerHTML=allTracks.slice(0,6).map(t=>`<div style="padding:2px 0">🎵 ${t.title}${t.folder?' <span style="color:var(--mut);font-size:.7em">— ${t.folder}</span>':''}</div>`).join('')+(allTracks.length>6?`<div style="color:var(--mut);font-size:.72rem">… et ${allTracks.length-6} autres</div>`:'');
+    toast(allTracks.length+' pistes chargées');
+    readID3Batch(allTracks);
+  }catch(e){if(st)st.textContent='Erreur réseau — les pistes locales restent disponibles.'}
+}
+
+function parseFolderUrls(raw){
+  return raw.split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+    const m=line.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)/);
+    if(m)return{repo:m[1]+'/'+m[2],path:decodeURIComponent(m[4]),ref:m[3]};
+    return null;
+  }).filter(Boolean);
+}
+async function readID3Batch(tracks){
+  if(typeof jsmediatags==='undefined')return;
+  for(let i=0;i<tracks.length;i++){
+    await new Promise(resolve=>{
+      try{
+        jsmediatags.read(tracks[i].url,{
+          onSuccess(tag){const t=tag.tags;if(t.title)tracks[i].title=t.title;if(t.artist)tracks[i].artist=t.artist;if(t.album)tracks[i].album=t.album;resolve()},
+          onError(){resolve()}
+        });
+      }catch(e){resolve()}
+    });
+    if(Player.idx===i)Player.updateUI();
+  }
+  renderTrackList();
+  const s=$i('ghStatus');if(s&&s.textContent.includes('ID3'))s.textContent=tracks.length+' piste(s) chargée(s) avec métadonnées ✓';
+}
+function loadLocalMP3(inp){
+  const tracks=[...inp.files].map(f=>({url:URL.createObjectURL(f),name:f.name,title:cleanFilename(f.name),artist:'',album:'',local:true}));
+  Player.load(tracks);
+  const el=$i('mp3List');if(el)el.textContent=tracks.length+' fichier(s) local/locaux chargé(s)';
+  toast(tracks.length+' piste(s) locale(s) chargée(s)');
+  inp.value='';
+}
+
+/* ── Player complet ── */
+const Player={
+  tracks:[],idx:0,audio:null,playing:false,
+  load(tracks){this.stop();this.tracks=tracks;this.idx=0;renderTrackList();this.updateUI()},
+  play(idx){
+    if(!this.tracks.length)return toast('Aucune piste — chargez des MP3 depuis GitHub ou votre PC');
+    if(idx!=null)this.idx=((idx%this.tracks.length)+this.tracks.length)%this.tracks.length;
+    if(this.audio){this.audio.pause();this.audio.ontimeupdate=null;this.audio.onended=null}
+    const t=this.tracks[this.idx];
+    this.audio=new Audio(t.url);
+    this.audio.volume=+($i('playerVol')?.value||.7);
+    this.audio.ontimeupdate=null; // pas de barre de progression
+    this.audio.onended=()=>this.next();
+    this.audio.play().catch(e=>toast('Lecture impossible : '+e.message));
+    this.playing=true;
+    $i('playerPanel')?.classList.remove('hidden');
+    this.updateUI();renderTrackList();
+  },
+  pause(){if(this.audio)this.audio.pause();this.playing=false;this.updateUI()},
+  togglePlay(){
+    if(this.playing){this.pause()}
+    else if(this.audio&&this.audio.paused&&this.audio.src){this.audio.play().catch(()=>{});this.playing=true;this.updateUI()}
+    else this.play();
+  },
+  next(){
+    if(!this.tracks.length)return;
+    const shuf=$i('oMp3Shuffle')?.checked;
+    if(shuf&&this.tracks.length>1){let ni;do{ni=Math.floor(Math.random()*this.tracks.length)}while(ni===this.idx);this.play(ni)}
+    else this.play((this.idx+1)%this.tracks.length);
+  },
+  prev(){
+    if(!this.tracks.length)return;
+    if(this.audio&&this.audio.currentTime>3){this.audio.currentTime=0;return}
+    this.play(((this.idx-1)+this.tracks.length)%this.tracks.length);
+  },
+  stop(){if(this.audio){this.audio.pause();this.audio.ontimeupdate=null;this.audio.onended=null;this.audio=null}this.playing=false;this.updateUI()},
+  setVolume(v){if(this.audio)this.audio.volume=v},
+  updateUI(){
+    const t=this.tracks[this.idx];
+    const ptEl=$i('plTitle'),paEl=$i('plArtist'),pb=$i('playBtn');
+    if(ptEl)ptEl.textContent=t?t.title||'Piste '+(this.idx+1):'—';
+    if(paEl)paEl.textContent=t?[t.artist,t.album].filter(Boolean).join(' · '):'';
+    if(pb)pb.textContent=this.playing?'⏸':'▶';
+    if(BC&&popupWin&&!popupWin.closed)BC.postMessage({type:'playerui',title:t?.title||'',artist:[t?.artist,t?.album].filter(Boolean).join(' · '),playing:this.playing});
+  }
+};
+function fmtTime(s){s=Math.round(s||0);return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60)}
+let trackListVisible=false;
+function toggleTrackList(){
+  trackListVisible=!trackListVisible;
+  const p=$i('trackListPanel');if(p)p.classList.toggle('hidden',!trackListVisible);
+  $i('listBtn')?.classList.toggle('on',trackListVisible);
+}
+function renderTrackList(){
+  const el=$i('trackListPanel');if(!el)return;
+  if(!Player.tracks.length){el.innerHTML='<div style="padding:12px;font-size:.82rem;color:var(--mut)">Aucune piste chargée.</div>';return}
+  el.innerHTML=Player.tracks.map((t,i)=>
+    `<div class="tl-item${i===Player.idx?' playing':''}" onclick="Player.play(${i});toggleTrackList()">
+      <span class="tl-num">${i+1}</span>
+      <span class="tl-name">${t.title||'Piste '+(i+1)}</span>
+      ${t.artist?`<span class="tl-art">${t.artist}</span>`:''}
+    </div>`).join('');
+}
+
+/* ── Voix ── */
+let voices=[];
+function loadVoices(){voices=('speechSynthesis'in window?speechSynthesis.getVoices():[]).filter(v=>v.lang&&v.lang.startsWith('fr'))}
+if('speechSynthesis'in window){loadVoices();speechSynthesis.addEventListener('voiceschanged',loadVoices)}
+function speak(t){if(!$i('oVoice').checked||!('speechSynthesis'in window))return;const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';if(voices.length)u.voice=voices[0];speechSynthesis.cancel();speechSynthesis.speak(u)}
+function toggleVoice(){$i('oVoice').checked=!$i('oVoice').checked;persist();saveSettings();$i('vBtn').classList.toggle('on',$i('oVoice').checked);toast('Annonces vocales '+($i('oVoice').checked?'activées':'désactivées'))}
+
+/* ── Musique en séance ── */
+let musicOn=false;
+function toggleMusic(){
+  musicOn=!musicOn;$i('mBtn').classList.toggle('on',musicOn);
+  if(musicOn){if(!Player.tracks.length){musicOn=false;$i('mBtn').classList.remove('on');return toast('Pistes GitHub en cours de chargement — réessayez dans un instant')}Player.play()}
+  else Player.stop();
+}
+function stopMusic(){
+  if(musicOn){musicOn=false;$i('mBtn').classList.remove('on')}
+  Player.stop();
+}
+
+/* ── Phrases ── */
+let phrasePool=[],phraseIdx=0,phraseTimer=null;
+function buildPhrasePool(){
+  const dis=window._disabledCats||new Set();
+  const custom=lsGet('cs.custom_phrases',[]);
+  let pool=[...PHRASES.filter(p=>!dis.has(p.c)).map(p=>p.t),...custom];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  phrasePool=pool;phraseIdx=0;
+}
+function showNextPhrase(){
+  if(!$i('oPhrases').checked||!phrasePool.length)return;
+  if(phraseIdx>=phrasePool.length)buildPhrasePool();
+  const el=$i('phrase');el.classList.remove('show');
+  const txt=phrasePool[phraseIdx++];
+  setTimeout(()=>{el.textContent='\u00ab\u00a0'+txt+'\u00a0\u00bb';el.classList.add('show')},1900);
+  BC&&BC.postMessage({type:'phrase',text:'\u00ab\u00a0'+txt+'\u00a0\u00bb'});
+}
+function startPhrases(){buildPhrasePool();showNextPhrase();phraseTimer=setInterval(showNextPhrase,60000)}
+function stopPhrases(){clearInterval(phraseTimer);phraseTimer=null;const el=$i('phrase');if(el){el.classList.remove('show');el.textContent=''}}
+
+/* ── Fenêtre popup (mode fenêtré) ── */
+const BC=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chrono_popup'):null;
+let popupWin=null;
+function buildPopupHTML(){
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Chrono Séance — fenêtre</title>
+<style>
+@property --ph{syntax:'<number>';initial-value:142;inherits:false}
+@property --ps{syntax:'<number>';initial-value:35;inherits:false}
+@property --pl1{syntax:'<number>';initial-value:97;inherits:false}
+@property --pl2{syntax:'<number>';initial-value:90;inherits:false}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Space Grotesk',system-ui,sans-serif}
+html,body{height:100%;overflow:hidden}
+body{display:flex;flex-direction:column;
+  background:linear-gradient(155deg,hsl(var(--ph),calc(var(--ps)*1%),calc(var(--pl1)*1%)),hsl(var(--ph),calc(var(--ps)*1.5%),calc(var(--pl2)*1%)));
+  transition:--ph 1.6s,--ps 1.6s,--pl1 1.6s,--pl2 1.6s;--sc:1}
+#name{flex:none;font-size:calc(.9rem*var(--sc));font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(22,24,29,.45);text-align:center;padding:10px 12px 0}
+#clock{flex:1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(5.5rem*var(--sc));font-variant-numeric:tabular-nums;letter-spacing:-.04em;transition:color .4s}
+#clock.over{color:#D6453A!important;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+#phrase{flex:none;text-align:center;padding:0 14px 6px;font-size:calc(.72rem*var(--sc));color:rgba(22,24,29,.38);font-style:italic;line-height:1.45;min-height:2em}
+#bar{flex:none;height:10px;background:rgba(22,24,29,.1);margin:0 14px 8px;border-radius:5px;overflow:hidden}
+#fill{height:100%;width:0%;border-radius:5px;transition:width .35s linear,background-color .8s}
+.ctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 12px 10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border:1px solid rgba(22,24,29,.16);border-radius:8px;min-width:36px;height:36px;padding:0 10px;font-size:.82rem;font-weight:600;background:rgba(255,255,255,.55)}
+button:hover{background:rgba(255,255,255,.85)}
+button.on{background:rgba(22,24,29,.78);color:#fff;border-color:transparent}
+</style>
+</head>
+<body>
+<div id="name">Chrono Séance</div>
+<div id="clock">—</div>
+<div id="phrase"></div>
+<div id="bar"><div id="fill"></div></div>
+<div class="ctrl">
+  <button onclick="sc=Math.max(.4,+(sc-.15).toFixed(2));document.body.style.setProperty('--sc',sc)">−</button>
+  <button onclick="sc=Math.min(3,+(sc+.15).toFixed(2));document.body.style.setProperty('--sc',sc)">+</button>
+  <button onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()">⛶</button>
+  <button onclick="window.close()">✕</button>
+</div>
+<script>
+let sc=1;
+const CH=new BroadcastChannel('chrono_popup');
+CH.onmessage=e=>{
+  const d=e.data;
+  if(d.type==='draw'){
+    document.getElementById('name').textContent=d.name||'';
+    const cl=document.getElementById('clock');cl.textContent=d.clock;cl.style.color=d.chronoColor||'';cl.classList.toggle('over',!!d.over);
+    document.getElementById('fill').style.width=d.prog+'%';document.getElementById('fill').style.backgroundColor=d.fillColor;
+    document.body.style.setProperty('--ph',d.ph);document.body.style.setProperty('--ps',d.ps);
+    document.body.style.setProperty('--pl1',d.pl1);document.body.style.setProperty('--pl2',d.pl2);
+  }else if(d.type==='phrase'){
+    const p=document.getElementById('phrase');p.style.opacity=0;setTimeout(()=>{p.textContent=d.text;p.style.transition='opacity 1.8s';p.style.opacity=1},1900);
+  }
+};
+<\/script>
+</body>
+</html>`;
+}
+function togglePopup(){
+  if(popupWin&&!popupWin.closed){popupWin.close();popupWin=null;$i('splitBtn').classList.remove('on');return}
+  popupWin=window.open('','chronoPopup','width=540,height=380,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no');
+  if(!popupWin){return toast('Popups bloquées par le navigateur — autorisez les pour ce site dans la barre d\'adresse')}
+  popupWin.document.open();popupWin.document.write(buildPopupHTML());popupWin.document.close();
+  $i('splitBtn').classList.add('on');
+  toast('Fenêtre ouverte — redimensionnez-la librement, elle reste visible même si vous changez d\'onglet');
+}
+
+/* ── Échelle ── */
+let sc=1;
+function scaleUp(){sc=Math.min(2.5,+(sc+.15).toFixed(2));$i('run').style.setProperty('--sc',sc)}
+function scaleDown(){sc=Math.max(.4,+(sc-.15).toFixed(2));$i('run').style.setProperty('--sc',sc)}
+
+/* ── Moteur ── */
+let _ph=142,_ps=35,_pl1=97,_pl2=90;
+const R={on:false,idx:0,el:0,last:0,paused:false,ended:false,fired:{},plan:[],act:[],tick:null,wake:null};
+function startSession(){
+  if(!ready()){
+    S.phases.forEach(p=>{if(!p.min){const el=document.getElementById('ph'+p.id);if(el){el.classList.add('miss-ph');setTimeout(()=>el.classList.remove('miss-ph'),800)}}});
+    return toast('Saisissez une durée pour chaque phase (champs rouges)');
+  }
+  ac();$i('summary').classList.add('hidden');
+  R.plan=S.phases.map(p=>({...p,dur:effMin(p)*60,clr:getColor(p)}));
+  R.act=R.plan.map(()=>0);R.on=true;R.paused=false;sc=1;
+  $i('builder').classList.add('hidden');$i('bar').classList.add('hidden');$i('run').classList.remove('hidden');
+  $i('run').style.setProperty('--sc',1);
+  $i('vBtn').classList.toggle('on',$i('oVoice').checked);
+  $i('mBtn').classList.remove('on');musicOn=false;
+  $i('pBtn').innerHTML='⏸ Pause';$i('pausedTag').classList.add('hidden');
+  buildStrip();buildEndTimes();enterPhase(0);
+  R.tick=setInterval(tick,200);poke();startPhrases();
+  if(navigator.wakeLock)navigator.wakeLock.request('screen').then(w=>R.wake=w).catch(()=>{});
+  if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+}
+function buildStrip(){
+  const tot=R.plan.reduce((s,p)=>s+p.dur,0);
+  $i('strip').innerHTML=R.plan.map((p,i)=>`<div class="seg" data-i="${i}" style="width:${(p.dur/tot*100).toFixed(3)}%;background:${p.clr}"></div>`).join('');
+}
+function buildEndTimes(){
+  let cum=Date.now();
+  $i('endtimes').innerHTML=R.plan.map((p,i)=>{cum+=p.dur*1000;
+    const t=new Date(cum).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    return `<span class="et" id="et${i}"><span class="dot2" style="background:${p.clr}"></span>${p.name} → ${t}</span>`}).join('');
+}
+function enterPhase(i){
+  R.idx=i;R.el=0;R.last=performance.now();R.ended=false;R.fired={};
+  const p=R.plan[i];
+  $i('rStep').textContent=(i+1)+'/'+R.plan.length;$i('rName').textContent=p.name;
+  const nx=R.plan[i+1];
+  $i('rNext').innerHTML=nx?'Ensuite — <b>'+nx.name+'</b> ('+fmtMin(Math.round(nx.dur/60))+')':'Dernière phase';
+  $i('ov').classList.add('hidden');
+  document.querySelectorAll('#strip .seg').forEach((el,k)=>el.classList.toggle('cur',k===i));
+  document.querySelectorAll('.et').forEach((el,k)=>el.classList.toggle('cur-et',k===i));
+  const hsl=hexToHsl(p.clr);
+  _ph=hsl.h;_ps=hsl.s*.42;_pl1=97;_pl2=90;
+  const run=$i('run');
+  run.style.setProperty('--ph',_ph.toFixed(0));run.style.setProperty('--ps',_ps.toFixed(0));
+  run.style.setProperty('--pl1','97');run.style.setProperty('--pl2','90');
+  speak(p.name+(p.cd?', '+Math.round(p.dur/60)+' minutes, top départ.':''));
+  draw();
+}
+function tick(){
+  if(!R.on)return;const now=performance.now();
+  if(!R.paused){R.el+=(now-R.last)/1000;R.act[R.idx]+=(now-R.last)/1000}
+  R.last=now;
+  const p=R.plan[R.idx],rem=p.dur-R.el;
+  if(!R.ended){
+    if(rem<=300&&p.dur>360&&!R.fired[300]){R.fired[300]=1;chime(1);speak('Il reste 5 minutes.')}
+    if(rem<=60&&!R.fired[60]){R.fired[60]=1;chime(2);speak('Il reste une minute.')}
+    if(rem<=0){R.ended=true;gong();speak('La phase est terminée.');showOv()}
+  }
+  draw();
+}
+function draw(){
+  const p=R.plan[R.idx],rem=p.dur-R.el,prog=clamp(R.el/p.dur,0,1),c=$i('rClock');
+  let fillColor,pl1=97,pl2=90;
+  if(R.ended){
+    c.textContent='+'+fmt(-rem);c.classList.add('over');c.style.color='';
+    $i('ovOver').textContent='+'+fmt(-rem);
+    const op=Math.min(1+(-rem)/120,1.12);
+    $i('fill').style.width=(op*100)+'%';fillColor='hsl(4,72%,50%)';
+    pl1=97;pl2=91;_ph=4;_ps=55;
+    $i('run').style.setProperty('--ph','4');$i('run').style.setProperty('--ps','55');
+  }else{
+    c.textContent=p.cd?fmt(rem):fmt(R.el);c.classList.remove('over');c.style.color=$i('oChronoColor').value||'';
+    const hsl=hexToHsl(p.clr);
+    const fl=clamp(hsl.l-prog*22,24,88),fs=clamp(hsl.s*(.48+.52*prog),16,100);
+    $i('fill').style.width=(prog*100)+'%';fillColor='hsl('+hsl.h.toFixed(0)+','+fs.toFixed(0)+'%,'+fl.toFixed(0)+'%)';
+    pl1=clamp(97-prog*8,88,97);pl2=clamp(90-prog*8,80,90);
+    $i('run').style.setProperty('--pl1',pl1.toFixed(0));$i('run').style.setProperty('--pl2',pl2.toFixed(0));
+  }
+  $i('fill').style.backgroundColor=fillColor;
+  $i('rWall').textContent=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  const remT=Math.max(0,rem)+R.plan.slice(R.idx+1).reduce((s,q)=>s+q.dur,0);
+  $i('rEnd').textContent=new Date(Date.now()+remT*1000).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  // sync popup
+  if(BC&&popupWin&&!popupWin.closed){
+    BC.postMessage({type:'draw',name:p.name,clock:c.textContent,over:R.ended,
+      prog:parseFloat($i('fill').style.width)||0,fillColor,
+      ph:_ph.toFixed(0),ps:_ps.toFixed(0),pl1:pl1.toFixed(0),pl2:pl2.toFixed(0),
+      chronoColor:$i('oChronoColor').value});
+  }
+}
+function showOv(){
+  const nx=R.plan[R.idx+1];$i('ovT').textContent='« '+R.plan[R.idx].name+' » terminée';
+  $i('ovNx').textContent=nx?'Phase suivante : '+nx.name+' ('+fmtMin(Math.round(nx.dur/60))+')':'C\'était la dernière phase.';
+  $i('ovGo').textContent=nx?'Phase suivante →':'Terminer ✓';
+  $i('ov').classList.remove('hidden');document.body.classList.remove('idle');
+}
+function extendPhase(){R.plan[R.idx].dur+=120;R.ended=false;R.fired[60]=0;$i('ov').classList.add('hidden');chime(1);draw()}
+function nextPhase(){$i('ov').classList.add('hidden');(R.idx+1<R.plan.length)?enterPhase(R.idx+1):finish()}
+function prevPhase(){(R.el>5||R.idx===0)?enterPhase(R.idx):enterPhase(R.idx-1)}
+function adjust(s){const p=R.plan[R.idx];p.dur=Math.max(60,p.dur+s);
+  if(p.dur-R.el>0&&R.ended){R.ended=false;$i('ov').classList.add('hidden')}
+  buildStrip();document.querySelectorAll('#strip .seg').forEach((el,k)=>el.classList.toggle('cur',k===R.idx));
+  toast((s>0?'+1':'−1')+' min → '+fmtMin(Math.round(p.dur/60)));draw()}
+function togglePause(){R.paused=!R.paused;R.last=performance.now();
+  $i('pBtn').innerHTML=R.paused?'▶ Reprendre':'⏸ Pause';
+  $i('pausedTag').classList.toggle('hidden',!R.paused);
+  if(R.paused)document.body.classList.remove('idle');else poke()}
+function toggleFS(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+function quitSession(){if(confirm('Arrêter la séance ?'))finish()}
+function finish(){
+  R.on=false;clearInterval(R.tick);stopMusic();stopPhrases();document.body.classList.remove('idle');
+  if(R.wake){R.wake.release().catch(()=>{});R.wake=null}
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  $i('run').classList.add('hidden');$i('ov').classList.add('hidden');
+  if(popupWin&&!popupWin.closed){popupWin.close();popupWin=null;$i('splitBtn').classList.remove('on')}
+  const rows=R.plan.map((p,i)=>{const a=Math.round(R.act[i]),d=a-p.dur,cls=d>30?'dp':(d<-30?'dm':'');
+    return `<tr class="sr"><td><span class="sdot" style="background:${p.clr}"></span>${p.name}</td><td>${fmt(p.dur)}</td><td>${fmt(a)}</td><td class="${cls}">${a?(d>0?'+':'−')+fmt(Math.abs(d)):'—'}</td></tr>`}).join('');
+  const tA=Math.round(R.act.reduce((a,b)=>a+b,0)),tP=R.plan.reduce((s,p)=>s+p.dur,0);
+  $i('sumBody').innerHTML=rows+`<tr style="font-weight:700;background:var(--soft)"><td>Total</td><td>${fmt(tP)}</td><td>${fmt(tA)}</td><td></td></tr>`;
+  $i('sumSub').textContent=($i('sName').value||'Séance')+' · '+frDate($i('sDate').value||today());
+  $i('summary').classList.remove('hidden');
+}
+function backToBuilder(){$i('summary').classList.add('hidden');$i('builder').classList.remove('hidden');$i('bar').classList.remove('hidden')}
+
+/* ── Idle ── */
+let idleT;
+function poke(){document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>{if(R.on&&!R.paused&&$i('ov').classList.contains('hidden'))document.body.classList.add('idle')},3000)}
+['mousemove','mousedown','keydown','touchstart'].forEach(e=>document.addEventListener(e,poke,{passive:true}));
+
+/* ── Clavier ── */
+document.addEventListener('keydown',e=>{
+  if(!R.on)return;if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  switch(e.key){
+    case ' ':e.preventDefault();togglePause();break;
+    case 'ArrowRight':nextPhase();break;case 'ArrowLeft':prevPhase();break;
+    case '+':case '=':adjust(60);break;case '-':adjust(-60);break;
+    case 'm':case 'M':toggleMusic();break;case 'v':case 'V':toggleVoice();break;
+    case 'f':case 'F':toggleFS();break;
+    case 'Escape':if($i('ov').classList.contains('hidden'))quitSession();break;
+    case 'Enter':if(!$i('ov').classList.contains('hidden'))nextPhase();break;
+  }
+});
+
+/* ── Init ── */
+(function(){
+  const emb=document.getElementById('embeddedSeance');
+  if(emb){try{const d=JSON.parse(emb.textContent);applySeance(d);toast('Séance « '+d.name+' » chargée — cliquez « Projeter » quand vous êtes prêt')}catch(e){}}
+})();
+loadSettings();renderCatToggles();renderCustomPhrases();renderItems();
+$i('sName').value='';$i('sDate').value=today();$i('oCap').value='';$i('oTiers').checked=false;
+$i('sName').addEventListener('input',persist);$i('sDate').addEventListener('input',persist);
+renderList();renderSeances();
+</script>
+</body>
+</html>
